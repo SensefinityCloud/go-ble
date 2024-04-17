@@ -27,8 +27,15 @@ func (d *Device) DidStartAdvertising(pmgr cbgo.PeripheralManager, err error) {
 }
 
 func (d *Device) DidReceiveReadRequest(pmgr cbgo.PeripheralManager, cbreq cbgo.ATTRequest) {
-	chr, _ := d.pc.findChr(cbreq.Characteristic())
-	if chr == nil || chr.ReadHandler == nil {
+	chr, err := d.pc.findChr(cbreq.Characteristic())
+	if err != nil {
+		log.Printf("failed to process read response: %v", err)
+		return
+	}
+
+	if chr == nil || (chr.ReadHandler == nil && chr.DefaultHandler == nil) {
+		log.Printf("failed to process read response: %v", fmt.Errorf("no handler"))
+
 		return
 	}
 
@@ -45,16 +52,27 @@ func (d *Device) DidReceiveReadRequest(pmgr cbgo.PeripheralManager, cbreq cbgo.A
 	req := ble.NewRequest(c, nil, cbreq.Offset())
 	buf := bytes.NewBuffer(make([]byte, 0, c.txMTU-1))
 	rsp := ble.NewResponseWriter(buf)
-	chr.ReadHandler.ServeRead(req, rsp)
-	cbreq.SetValue(buf.Bytes())
 
+	if chr.ReadHandler != nil {
+		chr.ReadHandler.ServeRead(req, rsp)
+	} else {
+		chr.DefaultHandler.ServeDefault(req, rsp)
+	}
+
+	cbreq.SetValue(buf.Bytes())
 	pmgr.RespondToRequest(cbreq, cbgo.ATTError(rsp.Status()))
 }
 
 func (d *Device) DidReceiveWriteRequests(pmgr cbgo.PeripheralManager, cbreqs []cbgo.ATTRequest) {
 	serveOne := func(cbreq cbgo.ATTRequest) {
-		chr, _ := d.pc.findChr(cbreq.Characteristic())
-		if chr == nil || chr.WriteHandler == nil {
+		chr, err := d.pc.findChr(cbreq.Characteristic())
+		if err != nil {
+			log.Printf("failed to process write response: %v", err)
+			return
+		}
+
+		if chr == nil || (chr.WriteHandler == nil && chr.DefaultHandler == nil) {
+			log.Printf("failed to process write response: %v", fmt.Errorf("no handler"))
 			return
 		}
 
@@ -70,7 +88,11 @@ func (d *Device) DidReceiveWriteRequests(pmgr cbgo.PeripheralManager, cbreqs []c
 
 		req := ble.NewRequest(c, cbreq.Value(), cbreq.Offset())
 		rsp := ble.NewResponseWriter(nil)
-		chr.WriteHandler.ServeWrite(req, rsp)
+		if chr.WriteHandler != nil {
+			chr.WriteHandler.ServeWrite(req, rsp)
+		} else {
+			chr.DefaultHandler.ServeDefault(req, rsp)
+		}
 
 		pmgr.RespondToRequest(cbreq, cbgo.ATTError(rsp.Status()))
 	}
