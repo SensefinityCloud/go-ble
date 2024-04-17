@@ -123,6 +123,7 @@ type Characteristic struct {
 
 	Value []byte
 
+	DefaultHandler  DefaultHandler
 	ReadHandler     ReadHandler
 	WriteHandler    WriteHandler
 	NotifyHandler   NotifyHandler
@@ -171,6 +172,16 @@ func (c *Characteristic) HandleRead(h ReadHandler) {
 		panic("charactristic has been configured with a static value")
 	}
 	c.Property |= CharRead
+	c.ReadHandler = h
+}
+
+// HandleDefault sets the default handle for the characteristic
+// Allows the user to choose its own properties.
+func (c *Characteristic) HandleDefault(h ReadHandler, properties []Property) {
+	for _, p := range properties {
+		c.Property |= p
+	}
+
 	c.ReadHandler = h
 }
 
