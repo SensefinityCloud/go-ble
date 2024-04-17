@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/go-ble/ble"
-	"github.com/go-ble/ble/linux"
-	"github.com/go-ble/ble/linux/hci/cmd"
 	"github.com/pkg/errors"
+	"github.com/sensefinitycloud/go-ble"
+	"github.com/sensefinitycloud/go-ble/linux"
+	"github.com/sensefinitycloud/go-ble/linux/hci/cmd"
 )
 
 func updateLinuxParam(d *linux.Device) error {

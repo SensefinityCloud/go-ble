@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/JuulLabs-OSS/cbgo v0.0.1
-	github.com/go-ble/ble v0.0.0-20240122180141-8c5522f54333
+
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect

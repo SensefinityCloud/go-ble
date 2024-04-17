@@ -7,10 +7,10 @@ import (
 	"log"
 	"time"
 
-	"github.com/go-ble/ble"
-	"github.com/go-ble/ble/examples/lib"
-	"github.com/go-ble/ble/examples/lib/dev"
 	"github.com/pkg/errors"
+	"github.com/sensefinitycloud/go-ble"
+	"github.com/sensefinitycloud/go-ble/examples/lib"
+	"github.com/sensefinitycloud/go-ble/examples/lib/dev"
 )
 
 var (

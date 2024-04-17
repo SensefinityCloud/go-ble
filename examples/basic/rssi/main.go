@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-ble/ble"
-	"github.com/go-ble/ble/examples/lib/dev"
+	"github.com/sensefinitycloud/go-ble"
+	"github.com/sensefinitycloud/go-ble/examples/lib/dev"
 )
 
 func main() {

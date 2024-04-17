@@ -1,7 +1,7 @@
 package dev
 
 import (
-	"github.com/go-ble/ble"
+	"github.com/sensefinitycloud/go-ble/ble"
 )
 
 // NewDevice ...
