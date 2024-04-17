@@ -176,6 +176,7 @@ func (s *Server) Loop() {
 
 func (s *Server) handleRequest(b []byte) []byte {
 	var resp []byte
+	log.Println("handleRequest: ", b[0])
 	logger.Debug("server", "req", fmt.Sprintf("% X", b))
 	switch reqType := b[0]; reqType {
 	case ExchangeMTURequestCode:
@@ -206,6 +207,7 @@ func (s *Server) handleRequest(b []byte) []byte {
 	default:
 		resp = newErrorResponse(reqType, 0x0000, ble.ErrReqNotSupp)
 	}
+	log.Println("handleRequest resp: ", resp)
 	logger.Debug("server", "rsp", fmt.Sprintf("% X", resp))
 	return resp
 }
@@ -288,6 +290,8 @@ func (s *Server) handleFindInformationRequest(r FindInformationRequest) []byte {
 
 // handle Find By Type Value request. [Vol 3, Part F, 3.4.3.3 & 3.4.3.4]
 func (s *Server) handleFindByTypeValueRequest(r FindByTypeValueRequest) []byte {
+	log.Println("handleFindByTypeValueRequest")
+
 	// Validate the request.
 	switch {
 	case len(r) < 7:
@@ -336,6 +340,7 @@ func (s *Server) handleFindByTypeValueRequest(r FindByTypeValueRequest) []byte {
 
 // handle Read By Type request. [Vol 3, Part F, 3.4.4.1 & 3.4.4.2]
 func (s *Server) handleReadByTypeRequest(r ReadByTypeRequest) []byte {
+	log.Println("handleReadByTypeRequest")
 	// Validate the request.
 	switch {
 	case len(r) != 7 && len(r) != 21:
@@ -397,6 +402,7 @@ func (s *Server) handleReadByTypeRequest(r ReadByTypeRequest) []byte {
 
 // handle Read request. [Vol 3, Part F, 3.4.4.3 & 3.4.4.4]
 func (s *Server) handleReadRequest(r ReadRequest) []byte {
+	log.Println("handleReadRequest")
 	// Validate the request.
 	switch {
 	case len(r) != 3:
@@ -429,6 +435,7 @@ func (s *Server) handleReadRequest(r ReadRequest) []byte {
 
 // handle Read Blob request. [Vol 3, Part F, 3.4.4.5 & 3.4.4.6]
 func (s *Server) handleReadBlobRequest(r ReadBlobRequest) []byte {
+	log.Println("handleReadBlobRequest")
 	// Validate the request.
 	switch {
 	case len(r) != 5:
@@ -461,6 +468,7 @@ func (s *Server) handleReadBlobRequest(r ReadBlobRequest) []byte {
 
 // handle Read Blob request. [Vol 3, Part F, 3.4.4.9 & 3.4.4.10]
 func (s *Server) handleReadByGroupRequest(r ReadByGroupTypeRequest) []byte {
+	log.Println("handleReadByGroupRequest")
 	// Validate the request.
 	switch {
 	case len(r) != 7 && len(r) != 21:
@@ -512,6 +520,7 @@ func (s *Server) handleReadByGroupRequest(r ReadByGroupTypeRequest) []byte {
 
 // handle Write request. [Vol 3, Part F, 3.4.5.1 & 3.4.5.2]
 func (s *Server) handleWriteRequest(r WriteRequest) []byte {
+	log.Println("handleWriteRequest")
 	// Validate the request.
 	switch {
 	case len(r) < 3:
@@ -534,6 +543,7 @@ func (s *Server) handleWriteRequest(r WriteRequest) []byte {
 }
 
 func (s *Server) handlePrepareWriteRequest(r PrepareWriteRequest) []byte {
+	log.Println("handlePrepareWriteRequest")
 	logger.Debug("handlePrepareWriteRequest ->", "r.AttributeHandle", r.AttributeHandle())
 	// Validate the request.
 	switch {
@@ -562,6 +572,7 @@ func (s *Server) handlePrepareWriteRequest(r PrepareWriteRequest) []byte {
 }
 
 func (s *Server) handleExecuteWriteRequest(r ExecuteWriteRequest) []byte {
+	log.Println("handleExecuteWriteRequest")
 	// Validate the request.
 	switch {
 	case len(r) < 2:
@@ -585,6 +596,7 @@ func (s *Server) handleExecuteWriteRequest(r ExecuteWriteRequest) []byte {
 
 // handle Write command. [Vol 3, Part F, 3.4.5.3]
 func (s *Server) handleWriteCommand(r WriteCommand) []byte {
+	log.Println("handleWriteCommand")
 	// Validate the request.
 	switch {
 	case len(r) <= 3:
