@@ -208,6 +208,7 @@ func (s *Server) handleRequest(b []byte) []byte {
 		resp = newErrorResponse(reqType, 0x0000, ble.ErrReqNotSupp)
 	}
 	log.Println("handleRequest resp: ", resp)
+	log.Printf("% X", resp)
 	logger.Debug("server", "rsp", fmt.Sprintf("% X", resp))
 	return resp
 }
