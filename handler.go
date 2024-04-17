@@ -10,9 +10,11 @@ import (
 type DefaultHandler interface {
 	ServeDefault(req Request, rsp ResponseWriter)
 }
-
-// DefaultHandlerFunc is an adapter to allow the use of ordinary functions as Handlers.
 type DefaultHandlerFunc func(req Request, rsp ResponseWriter)
+
+func (f ReadHandlerFunc) ServeDefault(req Request, rsp ResponseWriter) {
+	f(req, rsp)
+}
 
 // A ReadHandler handles GATT requests.
 type ReadHandler interface {
