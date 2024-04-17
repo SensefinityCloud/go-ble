@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"log"
 	"time"
 
 	"github.com/sensefinitycloud/go-ble"
@@ -615,9 +616,10 @@ func newErrorResponse(op byte, h uint16, s ble.ATTError) []byte {
 }
 
 func handleATT(a *attr, s *Server, req []byte, rsp ble.ResponseWriter) ble.ATTError {
-	fmt.Println(req[0])
-	fmt.Println(ble.ErrSuccess)
+	log.Printf("handleATT new request: %b", req[0])
+
 	rsp.SetStatus(ble.ErrSuccess)
+
 	var offset int
 	var data []byte
 	conn := s.conn
@@ -650,8 +652,7 @@ func handleATT(a *attr, s *Server, req []byte, rsp ble.ResponseWriter) ble.ATTEr
 			return ble.ErrWriteNotPerm
 		}
 		data = PrepareWriteRequest(req).PartAttributeValue()
-		logger.Debug("handleATT", "PartAttributeValue",
-			fmt.Sprintf("data: %x, offset: %d, %p\n", data, int(PrepareWriteRequest(req).ValueOffset()), s.prepareWriteRequestAttr))
+		fmt.Printf("PrepareWriteRequestCode: data: %x, offset: %d, %p\n", data, int(PrepareWriteRequest(req).ValueOffset()), s.prepareWriteRequestAttr)
 
 		if s.prepareWriteRequestAttr == nil {
 			s.prepareWriteRequestAttr = a
@@ -687,6 +688,6 @@ func handleATT(a *attr, s *Server, req []byte, rsp ble.ResponseWriter) ble.ATTEr
 	default:
 		return ble.ErrReqNotSupp
 	}
-
+	log.Printf("handleATT new status: %s", rsp.Status().Error())
 	return rsp.Status()
 }
