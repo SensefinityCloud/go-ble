@@ -131,11 +131,15 @@ func (h *HCI) AdvertiseNameAndServices(name string, uuids ...ble.UUID) error {
 // It tres to fit the UUIDs in the advertising packet as much as possible.
 // Advertises the given manufacturer data in the scan response.
 func (h *HCI) AdvertiseNameAndServicesWithScanResponse(name string, companyId uint16, b []byte, uuids ...ble.UUID) error {
-
 	ad, err := adv.NewPacket(adv.Flags(adv.FlagGeneralDiscoverable | adv.FlagLEOnly))
 	if err != nil {
 		return err
 	}
+	scanResponse, err := adv.NewPacket()
+	if err != nil {
+		return err
+	}
+
 	field := adv.AllUUID
 
 	// Current length of ad packet plus two bytes of length and tag.
@@ -157,7 +161,6 @@ func (h *HCI) AdvertiseNameAndServicesWithScanResponse(name string, companyId ui
 		}
 	}
 
-	scanResponse, _ := adv.NewPacket()
 	scanResponse.Append(adv.ManufacturerData(companyId, b))
 
 	ad.Append(adv.CompleteName(name))
