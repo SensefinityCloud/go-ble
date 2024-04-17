@@ -1,8 +1,8 @@
 package darwin
 
 import (
-	"github.com/go-ble/ble"
 	"github.com/raff/goble/xpc"
+	"github.com/sensefinitycloud/go-ble"
 )
 
 type msg xpc.Dict

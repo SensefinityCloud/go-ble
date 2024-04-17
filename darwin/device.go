@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/JuulLabs-OSS/cbgo"
-	"github.com/go-ble/ble"
+	"github.com/sensefinitycloud/go-ble"
 
 	"sync"
 )

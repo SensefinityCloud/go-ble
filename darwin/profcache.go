@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/go-ble/ble"
 	"github.com/JuulLabs-OSS/cbgo"
+	"github.com/sensefinitycloud/go-ble"
 )
 
 type profCache struct {

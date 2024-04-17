@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/JuulLabs-OSS/cbgo"
-	"github.com/go-ble/ble"
+	"github.com/sensefinitycloud/go-ble"
 )
 
 // newGenConn creates a new generic (role-less) connection.  This should not be

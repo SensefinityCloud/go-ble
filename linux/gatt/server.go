@@ -4,8 +4,8 @@ import (
 	"log"
 	"sync"
 
-	"github.com/go-ble/ble"
-	"github.com/go-ble/ble/linux/att"
+	"github.com/sensefinitycloud/go-ble"
+	"github.com/sensefinitycloud/go-ble/linux/att"
 )
 
 // NewServerWithName creates a new Server with the specified name

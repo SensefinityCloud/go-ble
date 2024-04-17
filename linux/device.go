@@ -5,10 +5,10 @@ import (
 	"io"
 	"log"
 
-	"github.com/go-ble/ble"
-	"github.com/go-ble/ble/linux/att"
-	"github.com/go-ble/ble/linux/gatt"
 	"github.com/pkg/errors"
+	"github.com/sensefinitycloud/go-ble"
+	"github.com/sensefinitycloud/go-ble/linux/att"
+	"github.com/sensefinitycloud/go-ble/linux/gatt"
 	"github.com/sensefinitycloud/go-ble/linux/hci"
 )
 
