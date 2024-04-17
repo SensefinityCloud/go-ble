@@ -177,12 +177,12 @@ func (c *Characteristic) HandleRead(h ReadHandler) {
 
 // HandleDefault sets the default handle for the characteristic
 // Allows the user to choose its own properties.
-func (c *Characteristic) HandleDefault(h ReadHandler, properties []Property) {
+func (c *Characteristic) HandleDefault(h DefaultHandler, properties []Property) {
 	for _, p := range properties {
 		c.Property |= p
 	}
 
-	c.ReadHandler = h
+	c.DefaultHandler = h
 }
 
 // HandleWrite makes the characteristic support write and write-no-response requests, and routes write requests to h.
