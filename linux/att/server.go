@@ -5,7 +5,6 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
-	"log"
 	"time"
 
 	"github.com/sensefinitycloud/go-ble"
@@ -134,14 +133,12 @@ func (s *Server) Loop() {
 		b := <-pool
 		for {
 			n, err := s.conn.Read(b.buf)
-			log.Println("Server : ", n, err)
 			if n == 0 || err != nil {
 				close(seq)
 				close(s.chConfirm)
 				_ = s.conn.Close()
 				return
 			}
-			log.Println("b.buf[0] : ", b.buf[0])
 			if b.buf[0] == HandleValueConfirmationCode {
 				select {
 				case s.chConfirm <- true:
@@ -156,7 +153,6 @@ func (s *Server) Loop() {
 		}
 	}()
 	for req := range seq {
-		log.Println("New Request to Handle")
 		if rsp := s.handleRequest(req.buf[:req.len]); rsp != nil {
 			if len(rsp) != 0 {
 				s.conn.Write(rsp)
@@ -165,7 +161,6 @@ func (s *Server) Loop() {
 		pool <- req
 	}
 	for h, ccc := range s.conn.cccs {
-		log.Println("Close or cleanup")
 		if ccc != 0 {
 			logger.Info("cleanup", ble.ContextKeyCCC, fmt.Sprintf("0x%02X", ccc))
 		}
@@ -180,7 +175,6 @@ func (s *Server) Loop() {
 
 func (s *Server) handleRequest(b []byte) []byte {
 	var resp []byte
-	log.Println("handleRequest: ", b[0])
 	logger.Debug("server", "req", fmt.Sprintf("% X", b))
 	switch reqType := b[0]; reqType {
 	case ExchangeMTURequestCode:
@@ -211,8 +205,6 @@ func (s *Server) handleRequest(b []byte) []byte {
 	default:
 		resp = newErrorResponse(reqType, 0x0000, ble.ErrReqNotSupp)
 	}
-	log.Println("handleRequest resp: ", resp)
-	log.Printf("% X", resp)
 	logger.Debug("server", "rsp", fmt.Sprintf("% X", resp))
 	return resp
 }
@@ -295,8 +287,6 @@ func (s *Server) handleFindInformationRequest(r FindInformationRequest) []byte {
 
 // handle Find By Type Value request. [Vol 3, Part F, 3.4.3.3 & 3.4.3.4]
 func (s *Server) handleFindByTypeValueRequest(r FindByTypeValueRequest) []byte {
-	log.Println("handleFindByTypeValueRequest")
-
 	// Validate the request.
 	switch {
 	case len(r) < 7:
@@ -345,7 +335,6 @@ func (s *Server) handleFindByTypeValueRequest(r FindByTypeValueRequest) []byte {
 
 // handle Read By Type request. [Vol 3, Part F, 3.4.4.1 & 3.4.4.2]
 func (s *Server) handleReadByTypeRequest(r ReadByTypeRequest) []byte {
-	log.Println("handleReadByTypeRequest")
 	// Validate the request.
 	switch {
 	case len(r) != 7 && len(r) != 21:
@@ -407,7 +396,6 @@ func (s *Server) handleReadByTypeRequest(r ReadByTypeRequest) []byte {
 
 // handle Read request. [Vol 3, Part F, 3.4.4.3 & 3.4.4.4]
 func (s *Server) handleReadRequest(r ReadRequest) []byte {
-	log.Println("handleReadRequest")
 	// Validate the request.
 	switch {
 	case len(r) != 3:
@@ -440,7 +428,6 @@ func (s *Server) handleReadRequest(r ReadRequest) []byte {
 
 // handle Read Blob request. [Vol 3, Part F, 3.4.4.5 & 3.4.4.6]
 func (s *Server) handleReadBlobRequest(r ReadBlobRequest) []byte {
-	log.Println("handleReadBlobRequest")
 	// Validate the request.
 	switch {
 	case len(r) != 5:
@@ -473,7 +460,6 @@ func (s *Server) handleReadBlobRequest(r ReadBlobRequest) []byte {
 
 // handle Read Blob request. [Vol 3, Part F, 3.4.4.9 & 3.4.4.10]
 func (s *Server) handleReadByGroupRequest(r ReadByGroupTypeRequest) []byte {
-	log.Println("handleReadByGroupRequest")
 	// Validate the request.
 	switch {
 	case len(r) != 7 && len(r) != 21:
@@ -525,7 +511,6 @@ func (s *Server) handleReadByGroupRequest(r ReadByGroupTypeRequest) []byte {
 
 // handle Write request. [Vol 3, Part F, 3.4.5.1 & 3.4.5.2]
 func (s *Server) handleWriteRequest(r WriteRequest) []byte {
-	log.Println("handleWriteRequest")
 	// Validate the request.
 	switch {
 	case len(r) < 3:
@@ -548,7 +533,6 @@ func (s *Server) handleWriteRequest(r WriteRequest) []byte {
 }
 
 func (s *Server) handlePrepareWriteRequest(r PrepareWriteRequest) []byte {
-	log.Println("handlePrepareWriteRequest")
 	logger.Debug("handlePrepareWriteRequest ->", "r.AttributeHandle", r.AttributeHandle())
 	// Validate the request.
 	switch {
@@ -577,7 +561,6 @@ func (s *Server) handlePrepareWriteRequest(r PrepareWriteRequest) []byte {
 }
 
 func (s *Server) handleExecuteWriteRequest(r ExecuteWriteRequest) []byte {
-	log.Println("handleExecuteWriteRequest")
 	// Validate the request.
 	switch {
 	case len(r) < 2:
@@ -601,7 +584,6 @@ func (s *Server) handleExecuteWriteRequest(r ExecuteWriteRequest) []byte {
 
 // handle Write command. [Vol 3, Part F, 3.4.5.3]
 func (s *Server) handleWriteCommand(r WriteCommand) []byte {
-	log.Println("handleWriteCommand")
 	// Validate the request.
 	switch {
 	case len(r) <= 3:
@@ -633,10 +615,7 @@ func newErrorResponse(op byte, h uint16, s ble.ATTError) []byte {
 }
 
 func handleATT(a *attr, s *Server, req []byte, rsp ble.ResponseWriter) ble.ATTError {
-	log.Printf("handleATT new request: %b", req[0])
-
 	rsp.SetStatus(ble.ErrSuccess)
-
 	var offset int
 	var data []byte
 	conn := s.conn
@@ -644,32 +623,23 @@ func handleATT(a *attr, s *Server, req []byte, rsp ble.ResponseWriter) ble.ATTEr
 	case ReadByTypeRequestCode:
 		fallthrough
 	case ReadRequestCode:
-		if a.rh == nil && a.dh == nil {
+		if a.rh == nil {
 			return ble.ErrReadNotPerm
 		}
-		if a.rh != nil {
-			a.rh.ServeRead(ble.NewRequest(conn, data, offset), rsp)
-		}
-		if a.dh != nil {
-			a.dh.ServeDefault(ble.NewRequest(conn, data, offset), rsp)
-		}
+		a.rh.ServeRead(ble.NewRequest(conn, data, offset), rsp)
 	case ReadBlobRequestCode:
-		if a.rh == nil && a.dh == nil {
+		if a.rh == nil {
 			return ble.ErrReadNotPerm
 		}
 		offset = int(ReadBlobRequest(req).ValueOffset())
-		if a.rh != nil {
-			a.rh.ServeRead(ble.NewRequest(conn, data, offset), rsp)
-		}
-		if a.dh != nil {
-			a.dh.ServeDefault(ble.NewRequest(conn, data, offset), rsp)
-		}
+		a.rh.ServeRead(ble.NewRequest(conn, data, offset), rsp)
 	case PrepareWriteRequestCode:
-		if a.wh == nil && a.dh == nil {
+		if a.wh == nil {
 			return ble.ErrWriteNotPerm
 		}
 		data = PrepareWriteRequest(req).PartAttributeValue()
-		fmt.Printf("PrepareWriteRequestCode: data: %x, offset: %d, %p\n", data, int(PrepareWriteRequest(req).ValueOffset()), s.prepareWriteRequestAttr)
+		logger.Debug("handleATT", "PartAttributeValue",
+			fmt.Sprintf("data: %x, offset: %d, %p\n", data, int(PrepareWriteRequest(req).ValueOffset()), s.prepareWriteRequestAttr))
 
 		if s.prepareWriteRequestAttr == nil {
 			s.prepareWriteRequestAttr = a
@@ -678,33 +648,26 @@ func handleATT(a *attr, s *Server, req []byte, rsp ble.ResponseWriter) ble.ATTEr
 		s.prepareWriteRequestData.Write(data)
 
 	case ExecuteWriteRequestCode:
-		if a.wh == nil && a.dh == nil {
+		if a.wh == nil {
 			return ble.ErrWriteNotPerm
 		}
 		data = s.prepareWriteRequestData.Bytes()
-		if a.wh != nil {
-			a.wh.ServeWrite(ble.NewRequest(conn, data, offset), rsp)
-		}
-		if a.dh != nil {
-			a.dh.ServeDefault(ble.NewRequest(conn, data, offset), rsp)
-		}
+		a.wh.ServeWrite(ble.NewRequest(conn, data, offset), rsp)
 		s.prepareWriteRequestAttr = nil
 	case WriteRequestCode:
 		fallthrough
 	case WriteCommandCode:
-		if a.wh == nil && a.dh == nil {
+		if a.wh == nil {
 			return ble.ErrWriteNotPerm
 		}
 		data = WriteRequest(req).AttributeValue()
-		if a.wh != nil {
-			a.wh.ServeWrite(ble.NewRequest(conn, data, offset), rsp)
-		}
-		if a.dh != nil {
-			a.dh.ServeDefault(ble.NewRequest(conn, data, offset), rsp)
-		}
+		a.wh.ServeWrite(ble.NewRequest(conn, data, offset), rsp)
+	// case SignedWriteCommandCode:
+	// case ReadByGroupTypeRequestCode:
+	// case ReadMultipleRequestCode:
 	default:
 		return ble.ErrReqNotSupp
 	}
-	log.Printf("handleATT new status: %s", rsp.Status().Error())
+
 	return rsp.Status()
 }

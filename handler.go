@@ -6,16 +6,6 @@ import (
 	"io"
 )
 
-// A Default Handler handles GATT requests.
-type DefaultHandler interface {
-	ServeDefault(req Request, rsp ResponseWriter)
-}
-type DefaultHandlerFunc func(req Request, rsp ResponseWriter)
-
-func (f DefaultHandlerFunc) ServeDefault(req Request, rsp ResponseWriter) {
-	f(req, rsp)
-}
-
 // A ReadHandler handles GATT requests.
 type ReadHandler interface {
 	ServeRead(req Request, rsp ResponseWriter)

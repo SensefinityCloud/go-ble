@@ -123,7 +123,6 @@ type Characteristic struct {
 
 	Value []byte
 
-	DefaultHandler  DefaultHandler
 	ReadHandler     ReadHandler
 	WriteHandler    WriteHandler
 	NotifyHandler   NotifyHandler
@@ -175,16 +174,6 @@ func (c *Characteristic) HandleRead(h ReadHandler) {
 	c.ReadHandler = h
 }
 
-// HandleDefault sets the default handle for the characteristic
-// Allows the user to choose its own properties.
-func (c *Characteristic) HandleDefault(h DefaultHandler, properties []Property) {
-	for _, p := range properties {
-		c.Property |= p
-	}
-
-	c.DefaultHandler = h
-}
-
 // HandleWrite makes the characteristic support write and write-no-response requests, and routes write requests to h.
 // The WriteHandler does not differentiate between write and write-no-response requests; it is handled automatically.
 // HandleWrite must be called before the containing service is added to a server.
@@ -215,9 +204,8 @@ type Descriptor struct {
 	Handle uint16
 	Value  []byte
 
-	ReadHandler    ReadHandler
-	WriteHandler   WriteHandler
-	DefaultHandler DefaultHandler
+	ReadHandler  ReadHandler
+	WriteHandler WriteHandler
 }
 
 // SetValue makes the descriptor support read requests, and returns a static value.
