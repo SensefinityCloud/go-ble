@@ -25,10 +25,12 @@ type Device interface {
 	// If name doesn't fit in the advertising packet, it will be put in scan response.
 	AdvertiseNameAndServices(ctx context.Context, name string, uuids ...UUID) error
 
-	// TODO
-	AdvertiseNameAndServicesWithScanResponse(ctx context.Context, name string, b []byte, uuids ...UUID) error
+	// Advertises device name, and specified service UUIDs.
+	// It tres to fit the UUIDs in the advertising packet as much as possible.
+	// Advertises the given manufacturer data in the scan response.
+	AdvertiseNameAndServicesWithScanResponse(ctx context.Context, name string, companyId uint16, b []byte, uuids ...UUID) error
 
-	// AdvertiseMfgData avertises the given manufacturer data.
+	// AdvertiseMfgData advertises the given manufacturer data.
 	AdvertiseMfgData(ctx context.Context, id uint16, b []byte) error
 
 	// AdvertiseServiceData16 advertises data associated with a 16bit service uuid

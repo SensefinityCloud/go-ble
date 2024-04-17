@@ -135,9 +135,11 @@ func (d *Device) AdvertiseNameAndServices(ctx context.Context, name string, uuid
 	return ctx.Err()
 }
 
-// TODO
-func (d *Device) AdvertiseNameAndServicesWithScanResponse(ctx context.Context, name string, b []byte, uuids ...ble.UUID) error {
-	if err := d.HCI.AdvertiseNameAndServicesWithScanResponse(name, b, uuids...); err != nil {
+// Advertises device name, and specified service UUIDs.
+// It tres to fit the UUIDs in the advertising packet as much as possible.
+// Advertises the given manufacturer data in the scan response.
+func (d *Device) AdvertiseNameAndServicesWithScanResponse(ctx context.Context, name string, companyId uint16, b []byte, uuids ...ble.UUID) error {
+	if err := d.HCI.AdvertiseNameAndServicesWithScanResponse(name, companyId, b, uuids...); err != nil {
 		return err
 	}
 	select {

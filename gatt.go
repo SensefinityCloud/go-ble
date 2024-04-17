@@ -63,12 +63,15 @@ func AdvertiseNameAndServices(ctx context.Context, name string, uuids ...UUID) e
 	return defaultDevice.AdvertiseNameAndServices(ctx, name, uuids...)
 }
 
-func AdvertiseNameAndServicesWithScanResponse(ctx context.Context, name string, b []byte, uuids ...UUID) error {
+// Advertises device name, and specified service UUIDs.
+// It tres to fit the UUIDs in the advertising packet as much as possible.
+// Advertises the given manufacturer data in the scan response.
+func AdvertiseNameAndServicesWithScanResponse(ctx context.Context, name string, companyId uint16, b []byte, uuids ...UUID) error {
 	if defaultDevice == nil {
 		return ErrDefaultDevice
 	}
 	defer untrap(trap(ctx))
-	return defaultDevice.AdvertiseNameAndServicesWithScanResponse(ctx, name, b, uuids...)
+	return defaultDevice.AdvertiseNameAndServicesWithScanResponse(ctx, name, companyId, b, uuids...)
 }
 
 // AdvertiseIBeaconData advertise iBeacon with given manufacturer data.

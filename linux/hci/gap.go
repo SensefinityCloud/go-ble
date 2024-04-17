@@ -127,8 +127,11 @@ func (h *HCI) AdvertiseNameAndServices(name string, uuids ...ble.UUID) error {
 	return h.Advertise()
 }
 
-// TODO
-func (h *HCI) AdvertiseNameAndServicesWithScanResponse(name string, b []byte, uuids ...ble.UUID) error {
+// Advertises device name, and specified service UUIDs.
+// It tres to fit the UUIDs in the advertising packet as much as possible.
+// Advertises the given manufacturer data in the scan response.
+func (h *HCI) AdvertiseNameAndServicesWithScanResponse(name string, companyId uint16, b []byte, uuids ...ble.UUID) error {
+
 	ad, err := adv.NewPacket(adv.Flags(adv.FlagGeneralDiscoverable | adv.FlagLEOnly))
 	if err != nil {
 		return err
@@ -155,7 +158,7 @@ func (h *HCI) AdvertiseNameAndServicesWithScanResponse(name string, b []byte, uu
 	}
 
 	scanResponse, _ := adv.NewPacket()
-	scanResponse.Append(adv.ManufacturerData(0x0059, b))
+	scanResponse.Append(adv.ManufacturerData(companyId, b))
 
 	ad.Append(adv.CompleteName(name))
 
