@@ -134,12 +134,14 @@ func (s *Server) Loop() {
 		b := <-pool
 		for {
 			n, err := s.conn.Read(b.buf)
+			log.Println("Server : ", n, err)
 			if n == 0 || err != nil {
 				close(seq)
 				close(s.chConfirm)
 				_ = s.conn.Close()
 				return
 			}
+			log.Println("b.buf[0] : ", b.buf[0])
 			if b.buf[0] == HandleValueConfirmationCode {
 				select {
 				case s.chConfirm <- true:
@@ -154,6 +156,7 @@ func (s *Server) Loop() {
 		}
 	}()
 	for req := range seq {
+		log.Println("New Request to Handle")
 		if rsp := s.handleRequest(req.buf[:req.len]); rsp != nil {
 			if len(rsp) != 0 {
 				s.conn.Write(rsp)
@@ -162,6 +165,7 @@ func (s *Server) Loop() {
 		pool <- req
 	}
 	for h, ccc := range s.conn.cccs {
+		log.Println("Close or cleanup")
 		if ccc != 0 {
 			logger.Info("cleanup", ble.ContextKeyCCC, fmt.Sprintf("0x%02X", ccc))
 		}
