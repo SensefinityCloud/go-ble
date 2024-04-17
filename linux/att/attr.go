@@ -11,4 +11,5 @@ type attr struct {
 	v  []byte
 	rh ble.ReadHandler
 	wh ble.WriteHandler
+	dh ble.DefaultHandler
 }

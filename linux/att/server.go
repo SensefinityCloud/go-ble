@@ -615,6 +615,8 @@ func newErrorResponse(op byte, h uint16, s ble.ATTError) []byte {
 }
 
 func handleATT(a *attr, s *Server, req []byte, rsp ble.ResponseWriter) ble.ATTError {
+	fmt.Println(req[0])
+	fmt.Println(ble.ErrSuccess)
 	rsp.SetStatus(ble.ErrSuccess)
 	var offset int
 	var data []byte
@@ -623,18 +625,28 @@ func handleATT(a *attr, s *Server, req []byte, rsp ble.ResponseWriter) ble.ATTEr
 	case ReadByTypeRequestCode:
 		fallthrough
 	case ReadRequestCode:
-		if a.rh == nil {
+		if a.rh == nil && a.dh == nil {
 			return ble.ErrReadNotPerm
 		}
-		a.rh.ServeRead(ble.NewRequest(conn, data, offset), rsp)
+		if a.rh != nil {
+			a.rh.ServeRead(ble.NewRequest(conn, data, offset), rsp)
+		}
+		if a.dh != nil {
+			a.dh.ServeDefault(ble.NewRequest(conn, data, offset), rsp)
+		}
 	case ReadBlobRequestCode:
-		if a.rh == nil {
+		if a.rh == nil && a.dh == nil {
 			return ble.ErrReadNotPerm
 		}
 		offset = int(ReadBlobRequest(req).ValueOffset())
-		a.rh.ServeRead(ble.NewRequest(conn, data, offset), rsp)
+		if a.rh != nil {
+			a.rh.ServeRead(ble.NewRequest(conn, data, offset), rsp)
+		}
+		if a.dh != nil {
+			a.dh.ServeDefault(ble.NewRequest(conn, data, offset), rsp)
+		}
 	case PrepareWriteRequestCode:
-		if a.wh == nil {
+		if a.wh == nil && a.dh == nil {
 			return ble.ErrWriteNotPerm
 		}
 		data = PrepareWriteRequest(req).PartAttributeValue()
@@ -648,23 +660,30 @@ func handleATT(a *attr, s *Server, req []byte, rsp ble.ResponseWriter) ble.ATTEr
 		s.prepareWriteRequestData.Write(data)
 
 	case ExecuteWriteRequestCode:
-		if a.wh == nil {
+		if a.wh == nil && a.dh == nil {
 			return ble.ErrWriteNotPerm
 		}
 		data = s.prepareWriteRequestData.Bytes()
-		a.wh.ServeWrite(ble.NewRequest(conn, data, offset), rsp)
+		if a.wh != nil {
+			a.wh.ServeWrite(ble.NewRequest(conn, data, offset), rsp)
+		}
+		if a.dh != nil {
+			a.dh.ServeDefault(ble.NewRequest(conn, data, offset), rsp)
+		}
 		s.prepareWriteRequestAttr = nil
 	case WriteRequestCode:
 		fallthrough
 	case WriteCommandCode:
-		if a.wh == nil {
+		if a.wh == nil && a.dh == nil {
 			return ble.ErrWriteNotPerm
 		}
 		data = WriteRequest(req).AttributeValue()
-		a.wh.ServeWrite(ble.NewRequest(conn, data, offset), rsp)
-	// case SignedWriteCommandCode:
-	// case ReadByGroupTypeRequestCode:
-	// case ReadMultipleRequestCode:
+		if a.wh != nil {
+			a.wh.ServeWrite(ble.NewRequest(conn, data, offset), rsp)
+		}
+		if a.dh != nil {
+			a.dh.ServeDefault(ble.NewRequest(conn, data, offset), rsp)
+		}
 	default:
 		return ble.ErrReqNotSupp
 	}

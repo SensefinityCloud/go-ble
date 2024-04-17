@@ -111,6 +111,7 @@ func genCharAttr(c *ble.Characteristic, h uint16) (uint16, []*attr) {
 		v:   c.Value,
 		rh:  c.ReadHandler,
 		wh:  c.WriteHandler,
+		dh:  c.DefaultHandler,
 	}
 
 	c.Handle = h
@@ -139,6 +140,7 @@ func genDescAttr(d *ble.Descriptor, h uint16) *attr {
 		v:   d.Value,
 		rh:  d.ReadHandler,
 		wh:  d.WriteHandler,
+		dh:  d.DefaultHandler,
 	}
 }
 

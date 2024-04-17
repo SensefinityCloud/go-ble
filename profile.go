@@ -215,8 +215,9 @@ type Descriptor struct {
 	Handle uint16
 	Value  []byte
 
-	ReadHandler  ReadHandler
-	WriteHandler WriteHandler
+	ReadHandler    ReadHandler
+	WriteHandler   WriteHandler
+	DefaultHandler DefaultHandler
 }
 
 // SetValue makes the descriptor support read requests, and returns a static value.
