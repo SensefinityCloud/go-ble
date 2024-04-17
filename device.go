@@ -18,7 +18,7 @@ type Device interface {
 	Stop() error
 
 	// Advertise advertises a given Advertisement
-	Advertise(ctx context.Context, adv Advertisement) error
+	Advertise(ctx context.Context, adv AdvertisementData) error
 
 	// AdvertiseNameAndServices advertises device name, and specified service UUIDs.
 	// It tres to fit the UUIDs in the advertising packet as much as possi

@@ -2,7 +2,6 @@ package hci
 
 import (
 	"context"
-	"encoding/binary"
 	"fmt"
 	"net"
 	"time"
@@ -40,49 +39,68 @@ func (h *HCI) StopScanning() error {
 	return h.Send(&h.params.scanEnable, nil)
 }
 
-// AdvertiseAdv advertises a given Advertisement
-func (h *HCI) AdvertiseAdv(a ble.Advertisement) error {
-	ad, err := adv.NewPacket(adv.Flags(adv.FlagGeneralDiscoverable | adv.FlagLEOnly))
+// AdvertiseAdv advertises a given Advertisement (generic advertisement)
+func (h *HCI) AdvertiseAdv(advertisingData ble.AdvertisementData) error {
+	advertising, err := adv.NewPacket(adv.Flags(adv.FlagGeneralDiscoverable | adv.FlagLEOnly))
 	if err != nil {
 		return err
 	}
-	f := adv.AllUUID
 
-	// Current length of ad packet plus two bytes of length and tag.
-	l := ad.Len() + 1 + 1
-	for _, u := range a.Services() {
-		l += u.Len()
+	scanResponse, err := adv.NewPacket()
+	if err != nil {
+		return err
 	}
-	if l > adv.MaxEIRPacketLength {
-		f = adv.SomeUUID
+
+	if advertisingData.ShortName != "" {
+		advertising.Append(adv.ShortName(advertisingData.ShortName))
 	}
-	for _, u := range a.Services() {
-		if err := ad.Append(f(u)); err != nil {
+	if advertisingData.CompleteName != "" {
+		advertising.Append(adv.CompleteName(advertisingData.CompleteName))
+	}
+
+	// Add Services
+	f := adv.AllUUID
+	for _, u := range advertisingData.Services {
+		if err := advertising.Append(f(u)); err != nil {
+			// Will return err if the UUID doesn't fit in the advertising packet.
 			if err == adv.ErrNotFit {
-				break
+				return err
 			}
 			return err
 		}
 	}
-	sr, _ := adv.NewPacket()
-	if a.LocalName() != "" {
-		switch {
-		case ad.Append(adv.CompleteName(a.LocalName())) == nil:
-		case sr.Append(adv.CompleteName(a.LocalName())) == nil:
-		case sr.Append(adv.ShortName(a.LocalName())) == nil:
+
+	// Add ManufacturerData
+	if advertisingData.ManufacturerData != nil {
+		manufacturerData := adv.ManufacturerData(advertisingData.ManufacturerData.CompanyId, advertisingData.ManufacturerData.Data)
+		err := advertising.Append(manufacturerData)
+		if err != nil {
+			return err
 		}
 	}
 
-	if a.ManufacturerData() != nil {
-		man := a.ManufacturerData()
-		id := binary.LittleEndian.Uint16(man[0:2])
-		manufacuturerData := adv.ManufacturerData(id, man[2:])
-		switch {
-		case ad.Append(manufacuturerData) == nil:
-		case sr.Append(manufacuturerData) == nil:
+	// Add Scan Response
+	if advertisingData.ScanResponse != nil {
+		if advertisingData.ScanResponse.IncludeDeviceName {
+			if advertisingData.ShortName != "" {
+				scanResponse.Append(adv.ShortName(advertisingData.ShortName))
+			}
+			if advertisingData.CompleteName != "" {
+				scanResponse.Append(adv.CompleteName(advertisingData.CompleteName))
+			}
 		}
+
+		if advertisingData.ScanResponse.ManufacturerData != nil {
+			manufacturerData := adv.ManufacturerData(advertisingData.ScanResponse.ManufacturerData.CompanyId, advertisingData.ScanResponse.ManufacturerData.Data)
+			err = scanResponse.Append(manufacturerData)
+			if err != nil {
+				return err
+			}
+		}
+
 	}
-	if err := h.SetAdvertisement(ad.Bytes(), sr.Bytes()); err != nil {
+
+	if err := h.SetAdvertisement(advertising.Bytes(), scanResponse.Bytes()); err != nil {
 		return nil
 	}
 	return h.Advertise()

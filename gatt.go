@@ -52,7 +52,7 @@ func Stop() error {
 	return defaultDevice.Stop()
 }
 
-func Advertise(ctx context.Context, adv Advertisement) error {
+func Advertise(ctx context.Context, adv AdvertisementData) error {
 	if defaultDevice == nil {
 		return ErrDefaultDevice
 	}

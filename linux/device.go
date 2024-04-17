@@ -105,7 +105,7 @@ func (d *Device) Stop() error {
 	return d.HCI.Close()
 }
 
-func (d *Device) Advertise(ctx context.Context, adv ble.Advertisement) error {
+func (d *Device) Advertise(ctx context.Context, adv ble.AdvertisementData) error {
 	if err := d.HCI.AdvertiseAdv(adv); err != nil {
 		return err
 	}
