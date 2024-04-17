@@ -127,6 +127,44 @@ func (h *HCI) AdvertiseNameAndServices(name string, uuids ...ble.UUID) error {
 	return h.Advertise()
 }
 
+// TODO
+func (h *HCI) AdvertiseNameAndServicesWithScanResponse(name string, b []byte, uuids ...ble.UUID) error {
+	ad, err := adv.NewPacket(adv.Flags(adv.FlagGeneralDiscoverable | adv.FlagLEOnly))
+	if err != nil {
+		return err
+	}
+	field := adv.AllUUID
+
+	// Current length of ad packet plus two bytes of length and tag.
+	lenPacket := ad.Len() + 1 + 1
+
+	for _, uuid := range uuids {
+		lenPacket += uuid.Len()
+	}
+	if lenPacket > adv.MaxEIRPacketLength {
+		field = adv.SomeUUID
+	}
+
+	for _, uuid := range uuids {
+		if err := ad.Append(field(uuid)); err != nil {
+			if err == adv.ErrNotFit {
+				break
+			}
+			return err
+		}
+	}
+
+	scanResponse, _ := adv.NewPacket()
+	scanResponse.Append(adv.ManufacturerData(0x0059, b))
+
+	ad.Append(adv.CompleteName(name))
+
+	if err := h.SetAdvertisement(ad.Bytes(), scanResponse.Bytes()); err != nil {
+		return nil
+	}
+	return h.Advertise()
+}
+
 // AdvertiseMfgData avertises the given manufacturer data.
 func (h *HCI) AdvertiseMfgData(id uint16, md []byte) error {
 	ad, err := adv.NewPacket(adv.ManufacturerData(id, md))

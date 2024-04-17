@@ -135,6 +135,20 @@ func (d *Device) AdvertiseNameAndServices(ctx context.Context, name string, uuid
 	return ctx.Err()
 }
 
+// TODO
+func (d *Device) AdvertiseNameAndServicesWithScanResponse(ctx context.Context, name string, b []byte, uuids ...ble.UUID) error {
+	if err := d.HCI.AdvertiseNameAndServicesWithScanResponse(name, b, uuids...); err != nil {
+		return err
+	}
+	select {
+	case <-ctx.Done():
+	case <-d.HCI.Done():
+		return d.HCI.Error()
+	}
+	d.HCI.StopAdvertising()
+	return ctx.Err()
+}
+
 // AdvertiseMfgData avertises the given manufacturer data.
 func (d *Device) AdvertiseMfgData(ctx context.Context, id uint16, b []byte) error {
 	if err := d.HCI.AdvertiseMfgData(id, b); err != nil {

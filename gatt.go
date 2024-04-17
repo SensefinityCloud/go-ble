@@ -63,6 +63,14 @@ func AdvertiseNameAndServices(ctx context.Context, name string, uuids ...UUID) e
 	return defaultDevice.AdvertiseNameAndServices(ctx, name, uuids...)
 }
 
+func AdvertiseNameAndServicesWithScanResponse(ctx context.Context, name string, b []byte, uuids ...UUID) error {
+	if defaultDevice == nil {
+		return ErrDefaultDevice
+	}
+	defer untrap(trap(ctx))
+	return defaultDevice.AdvertiseNameAndServicesWithScanResponse(ctx, name, b, uuids...)
+}
+
 // AdvertiseIBeaconData advertise iBeacon with given manufacturer data.
 func AdvertiseIBeaconData(ctx context.Context, b []byte) error {
 	if defaultDevice == nil {
