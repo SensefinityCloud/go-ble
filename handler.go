@@ -12,7 +12,7 @@ type DefaultHandler interface {
 }
 type DefaultHandlerFunc func(req Request, rsp ResponseWriter)
 
-func (f ReadHandlerFunc) ServeDefault(req Request, rsp ResponseWriter) {
+func (f DefaultHandlerFunc) ServeDefault(req Request, rsp ResponseWriter) {
 	f(req, rsp)
 }
 
