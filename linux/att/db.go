@@ -3,6 +3,7 @@ package att
 import (
 	"encoding/binary"
 	"fmt"
+	"log"
 
 	"github.com/sensefinitycloud/go-ble"
 )
@@ -193,7 +194,8 @@ func newCCCD(c *ble.Characteristic) *ble.Descriptor {
 			go c.NotifyHandler.ServeNotify(req, cn.nn[c.Handle])
 		}
 		if !newNotify && oldNotify {
-			cn.nn[c.Handle].Close()
+			log.Println("CLOSING?")
+			// cn.nn[c.Handle].Close()
 		}
 
 		if newIndicate && !oldIndicate {
@@ -211,7 +213,8 @@ func newCCCD(c *ble.Characteristic) *ble.Descriptor {
 
 		}
 		if !newIndicate && oldIndicate {
-			cn.in[c.Handle].Close()
+			log.Println("CLOSING?")
+			// cn.in[c.Handle].Close()
 		}
 		cn.cccs[c.Handle] = ccc
 	}))
