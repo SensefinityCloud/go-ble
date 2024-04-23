@@ -208,6 +208,7 @@ func newCCCD(c *ble.Characteristic) *ble.Descriptor {
 			fmt.Println("c.Handle", c.Handle)
 			cn.in[c.Handle] = ble.NewNotifier(send)
 			go c.IndicateHandler.ServeNotify(req, cn.in[c.Handle])
+
 		}
 		if !newIndicate && oldIndicate {
 			cn.in[c.Handle].Close()

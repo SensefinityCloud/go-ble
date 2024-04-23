@@ -4,9 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	"io"
 	"log"
-	"time"
 
 	"github.com/sensefinitycloud/go-ble"
 )
@@ -108,15 +106,8 @@ func (s *Server) indicate(h uint16, data []byte) (int, error) {
 	if err != nil {
 		return n, err
 	}
-	select {
-	case _, ok := <-s.chConfirm:
-		if !ok {
-			return 0, io.ErrClosedPipe
-		}
-		return n, nil
-	case <-time.After(time.Second * 30):
-		return 0, ErrSeqProtoTimeout
-	}
+	return n, nil
+
 }
 
 // Loop accepts incoming ATT request, and respond response.
@@ -666,8 +657,9 @@ func handleATT(a *attr, s *Server, req []byte, rsp ble.ResponseWriter) ble.ATTEr
 		}
 		data = WriteRequest(req).AttributeValue()
 
-		send := func(b []byte) (int, error) { return conn.svr.indicate(21, b) }
-		conn.in[20] = ble.NewNotifier(send)
+		conn.in[20] = ble.NewNotifier(func(b []byte) (int, error) {
+			return conn.svr.indicate(21, b)
+		})
 
 		a.wh.ServeWrite(ble.NewRequest(conn, data, offset), rsp, conn.in[20])
 	// case SignedWriteCommandCode:
