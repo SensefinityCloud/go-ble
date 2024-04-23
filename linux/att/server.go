@@ -670,7 +670,7 @@ func handleATT(a *attr, s *Server, req []byte, rsp ble.ResponseWriter) ble.ATTEr
 			return conn.svr.notify(21, b)
 		})
 
-		a.wh.ServeWrite(ble.NewRequest(conn, data, offset), rsp, conn.nn[20])
+		a.wh.ServeWrite(ble.NewRequest(conn, data, offset), rsp, conn.svr.notify)
 
 	// case SignedWriteCommandCode:
 	// case ReadByGroupTypeRequestCode:
