@@ -658,8 +658,10 @@ func handleATT(a *attr, s *Server, req []byte, rsp ble.ResponseWriter) ble.ATTEr
 		a.wh.ServeWrite(ble.NewRequest(conn, data, offset), rsp)
 		s.prepareWriteRequestAttr = nil
 	case WriteRequestCode:
+		fmt.Println("WriteRequestCode")
 		fallthrough
 	case WriteCommandCode:
+		fmt.Println("WriteCommandCode")
 		if a.wh == nil {
 			return ble.ErrWriteNotPerm
 		}

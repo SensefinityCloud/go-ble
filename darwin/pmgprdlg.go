@@ -54,6 +54,7 @@ func (d *Device) DidReceiveReadRequest(pmgr cbgo.PeripheralManager, cbreq cbgo.A
 func (d *Device) DidReceiveWriteRequests(pmgr cbgo.PeripheralManager, cbreqs []cbgo.ATTRequest) {
 
 	serveOne := func(cbreq cbgo.ATTRequest) {
+		fmt.Println("serveOne, DidReceiveWriteRequests")
 		chr, _ := d.pc.findChr(cbreq.Characteristic())
 		if chr == nil || chr.WriteHandler == nil {
 			return

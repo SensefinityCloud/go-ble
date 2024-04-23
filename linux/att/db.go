@@ -212,5 +212,6 @@ func newCCCD(c *ble.Characteristic) *ble.Descriptor {
 		}
 		cn.cccs[c.Handle] = ccc
 	}))
+
 	return d
 }
