@@ -52,7 +52,7 @@ func (d *Device) DidReceiveReadRequest(pmgr cbgo.PeripheralManager, cbreq cbgo.A
 }
 
 func (d *Device) DidReceiveWriteRequests(pmgr cbgo.PeripheralManager, cbreqs []cbgo.ATTRequest) {
-	fmt.Println("DidReceiveWriteRequests")
+
 	serveOne := func(cbreq cbgo.ATTRequest) {
 		chr, _ := d.pc.findChr(cbreq.Characteristic())
 		if chr == nil || chr.WriteHandler == nil {
@@ -73,10 +73,6 @@ func (d *Device) DidReceiveWriteRequests(pmgr cbgo.PeripheralManager, cbreqs []c
 		rsp := ble.NewResponseWriter(nil)
 		chr.WriteHandler.ServeWrite(req, rsp)
 
-		n := ble.NewNotifier(nil)
-
-		go chr.NotifyHandler.ServeNotify(req, n)
-
 		pmgr.RespondToRequest(cbreq, cbgo.ATTError(rsp.Status()))
 	}
 
@@ -86,7 +82,6 @@ func (d *Device) DidReceiveWriteRequests(pmgr cbgo.PeripheralManager, cbreqs []c
 }
 
 func (d *Device) CentralDidSubscribe(pmgr cbgo.PeripheralManager, cent cbgo.Central, cbchr cbgo.Characteristic) {
-	fmt.Println("CentralDidSubscribe")
 	c := d.findConn(cent.Identifier())
 	if c == nil {
 		var err error

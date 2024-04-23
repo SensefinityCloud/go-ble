@@ -619,6 +619,7 @@ func handleATT(a *attr, s *Server, req []byte, rsp ble.ResponseWriter) ble.ATTEr
 	var offset int
 	var data []byte
 	conn := s.conn
+	fmt.Println("handleATT ->", req[0])
 	switch req[0] {
 	case ReadByTypeRequestCode:
 		fallthrough
@@ -634,6 +635,7 @@ func handleATT(a *attr, s *Server, req []byte, rsp ble.ResponseWriter) ble.ATTEr
 		offset = int(ReadBlobRequest(req).ValueOffset())
 		a.rh.ServeRead(ble.NewRequest(conn, data, offset), rsp)
 	case PrepareWriteRequestCode:
+		fmt.Println("PrepareWriteRequestCode")
 		if a.wh == nil {
 			return ble.ErrWriteNotPerm
 		}
@@ -648,6 +650,7 @@ func handleATT(a *attr, s *Server, req []byte, rsp ble.ResponseWriter) ble.ATTEr
 		s.prepareWriteRequestData.Write(data)
 
 	case ExecuteWriteRequestCode:
+		fmt.Println("ExecuteWriteRequestCode")
 		if a.wh == nil {
 			return ble.ErrWriteNotPerm
 		}
