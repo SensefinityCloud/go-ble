@@ -116,10 +116,9 @@ func genCharAttr(c *ble.Characteristic, h uint16) (uint16, []*attr) {
 
 	c.Handle = h
 	c.ValueHandle = vh
-	if c.NotifyHandler != nil || c.IndicateHandler != nil {
-		c.CCCD = newCCCD(c)
-		c.Descriptors = append(c.Descriptors, c.CCCD)
-	}
+
+	c.CCCD = newCCCD(c)
+	c.Descriptors = append(c.Descriptors, c.CCCD)
 
 	h += 2
 
