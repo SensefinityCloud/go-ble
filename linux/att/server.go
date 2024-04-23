@@ -622,6 +622,7 @@ func handleATT(a *attr, s *Server, req []byte, rsp ble.ResponseWriter) ble.ATTEr
 	var offset int
 	var data []byte
 	conn := s.conn
+
 	switch req[0] {
 	case ReadByTypeRequestCode:
 		fallthrough
@@ -655,7 +656,7 @@ func handleATT(a *attr, s *Server, req []byte, rsp ble.ResponseWriter) ble.ATTEr
 			return ble.ErrWriteNotPerm
 		}
 		data = s.prepareWriteRequestData.Bytes()
-		a.wh.ServeWrite(ble.NewRequest(conn, data, offset), rsp)
+		a.wh.ServeWrite(ble.NewRequest(conn, data, offset), rsp, nil)
 		s.prepareWriteRequestAttr = nil
 	case WriteRequestCode:
 		fallthrough
@@ -664,7 +665,11 @@ func handleATT(a *attr, s *Server, req []byte, rsp ble.ResponseWriter) ble.ATTEr
 			return ble.ErrWriteNotPerm
 		}
 		data = WriteRequest(req).AttributeValue()
-		a.wh.ServeWrite(ble.NewRequest(conn, data, offset), rsp)
+
+		send := func(b []byte) (int, error) { return conn.svr.indicate(1, b) }
+		conn.in[1] = ble.NewNotifier(send)
+
+		a.wh.ServeWrite(ble.NewRequest(conn, data, offset), rsp, conn.in[1])
 	// case SignedWriteCommandCode:
 	// case ReadByGroupTypeRequestCode:
 	// case ReadMultipleRequestCode:

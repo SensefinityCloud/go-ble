@@ -23,7 +23,7 @@ type echoChar struct {
 	m map[string]chan []byte
 }
 
-func (e *echoChar) written(req ble.Request, rsp ble.ResponseWriter) {
+func (e *echoChar) written(req ble.Request, rsp ble.ResponseWriter, n ble.Notifier) {
 	e.Lock()
 	e.m[req.Conn().RemoteAddr().String()] <- req.Data()
 	e.Unlock()

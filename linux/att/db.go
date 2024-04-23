@@ -169,7 +169,7 @@ func newCCCD(c *ble.Characteristic) *ble.Descriptor {
 		binary.Write(rsp, binary.LittleEndian, ccc)
 	}))
 
-	d.HandleWrite(ble.WriteHandlerFunc(func(req ble.Request, rsp ble.ResponseWriter) {
+	d.HandleWrite(ble.WriteHandlerFunc(func(req ble.Request, rsp ble.ResponseWriter, n ble.Notifier) {
 		cn := req.Conn().(*conn)
 		old := cn.cccs[c.Handle]
 		ccc := binary.LittleEndian.Uint16(req.Data())
