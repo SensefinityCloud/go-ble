@@ -5,7 +5,6 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
-	"log"
 	"time"
 
 	"github.com/sensefinitycloud/go-ble"
@@ -156,7 +155,6 @@ func (s *Server) Loop() {
 		}
 	}()
 	for req := range seq {
-		log.Println("New Request")
 		if rsp := s.handleRequest(req.buf[:req.len]); rsp != nil {
 			if len(rsp) != 0 {
 				s.conn.Write(rsp)
