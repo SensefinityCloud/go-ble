@@ -179,6 +179,7 @@ func (s *Server) Loop() {
 
 func (s *Server) handleRequest(b []byte) []byte {
 	var resp []byte
+	logger.Debug("server", "req", fmt.Sprintf("% X", b))
 	switch reqType := b[0]; reqType {
 	case ExchangeMTURequestCode:
 		resp = s.handleExchangeMTURequest(b)
@@ -208,7 +209,7 @@ func (s *Server) handleRequest(b []byte) []byte {
 	default:
 		resp = newErrorResponse(reqType, 0x0000, ble.ErrReqNotSupp)
 	}
-	log.Println("server", "rsp", fmt.Sprintf("% X", resp))
+	logger.Debug("server", "rsp", fmt.Sprintf("% X", resp))
 	return resp
 }
 
