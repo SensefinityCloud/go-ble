@@ -170,6 +170,7 @@ func newCCCD(c *ble.Characteristic) *ble.Descriptor {
 	}))
 
 	d.HandleWrite(ble.WriteHandlerFunc(func(req ble.Request, rsp ble.ResponseWriter) {
+		fmt.Println("d.HandleWrite")
 		cn := req.Conn().(*conn)
 		old := cn.cccs[c.Handle]
 		ccc := binary.LittleEndian.Uint16(req.Data())
@@ -178,6 +179,11 @@ func newCCCD(c *ble.Characteristic) *ble.Descriptor {
 		oldIndicate := old&cccIndicate != 0
 		newNotify := ccc&cccNotify != 0
 		newIndicate := ccc&cccIndicate != 0
+
+		fmt.Println("oldNotify", oldNotify)
+		fmt.Println("oldIndicate", oldIndicate)
+		fmt.Println("newNotify", newNotify)
+		fmt.Println("newIndicate", newIndicate)
 
 		if newNotify && !oldNotify {
 			if c.Property&ble.CharNotify == 0 {
