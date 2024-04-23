@@ -73,7 +73,7 @@ func NewServer(db *DB, l2c ble.Conn) (*Server, error) {
 
 // notify sends notification to remote central.
 func (s *Server) notify(h uint16, data []byte) (int, error) {
-	log.Println("notify", h, data)
+
 	// Acquire and reuse notifyBuffer. Release it after usage.
 	nBuf := <-s.chNotBuf
 	defer func() { s.chNotBuf <- nBuf }()
@@ -86,8 +86,7 @@ func (s *Server) notify(h uint16, data []byte) (int, error) {
 	if len(data) > buf.Cap() {
 		data = data[:buf.Cap()]
 	}
-	_, err := buf.Write(data)
-	log.Println(err)
+	buf.Write(data)
 	return s.conn.Write(rsp[:3+buf.Len()])
 }
 
@@ -180,7 +179,6 @@ func (s *Server) Loop() {
 
 func (s *Server) handleRequest(b []byte) []byte {
 	var resp []byte
-	log.Println("server", "req", fmt.Sprintf("% X", b))
 	switch reqType := b[0]; reqType {
 	case ExchangeMTURequestCode:
 		resp = s.handleExchangeMTURequest(b)
@@ -620,7 +618,6 @@ func newErrorResponse(op byte, h uint16, s ble.ATTError) []byte {
 }
 
 func handleATT(a *attr, s *Server, req []byte, rsp ble.ResponseWriter) ble.ATTError {
-	log.Println("handleATT", req[0])
 	rsp.SetStatus(ble.ErrSuccess)
 	var offset int
 	var data []byte
@@ -669,6 +666,7 @@ func handleATT(a *attr, s *Server, req []byte, rsp ble.ResponseWriter) ble.ATTEr
 		}
 		data = WriteRequest(req).AttributeValue()
 
+		// TODO
 		conn.nn[20] = ble.NewNotifier(func(b []byte) (int, error) {
 			return conn.svr.notify(21, b)
 		})

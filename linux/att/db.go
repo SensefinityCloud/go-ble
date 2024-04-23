@@ -3,7 +3,6 @@ package att
 import (
 	"encoding/binary"
 	"fmt"
-	"log"
 
 	"github.com/sensefinitycloud/go-ble"
 )
@@ -186,16 +185,11 @@ func newCCCD(c *ble.Characteristic) *ble.Descriptor {
 				rsp.SetStatus(ble.ErrUnlikely)
 				return
 			}
-			send := func(b []byte) (int, error) {
-				fmt.Println("c.ValueHandle NOTIFY", c.ValueHandle)
-				return cn.svr.notify(c.ValueHandle, b)
-			}
-			fmt.Println("c.Handle NOTIFY", c.Handle)
+			send := func(b []byte) (int, error) { return cn.svr.notify(c.ValueHandle, b) }
 			cn.nn[c.Handle] = ble.NewNotifier(send)
 			go c.NotifyHandler.ServeNotify(req, cn.nn[c.Handle])
 		}
 		if !newNotify && oldNotify {
-			log.Println("CLOSING?")
 			cn.nn[c.Handle].Close()
 		}
 
@@ -205,16 +199,13 @@ func newCCCD(c *ble.Characteristic) *ble.Descriptor {
 				return
 			}
 			send := func(b []byte) (int, error) {
-				fmt.Println("c.ValueHandle INDICATE", c.ValueHandle)
 				return cn.svr.indicate(c.ValueHandle, b)
 			}
-			fmt.Println("c.Handle INDICATE", c.Handle)
 			cn.in[c.Handle] = ble.NewNotifier(send)
 			go c.IndicateHandler.ServeNotify(req, cn.in[c.Handle])
 
 		}
 		if !newIndicate && oldIndicate {
-			log.Println("CLOSING?")
 			cn.in[c.Handle].Close()
 		}
 		cn.cccs[c.Handle] = ccc
