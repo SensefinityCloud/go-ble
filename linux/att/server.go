@@ -666,10 +666,10 @@ func handleATT(a *attr, s *Server, req []byte, rsp ble.ResponseWriter) ble.ATTEr
 		}
 		data = WriteRequest(req).AttributeValue()
 
-		send := func(b []byte) (int, error) { return conn.svr.indicate(1, b) }
+		send := func(b []byte) (int, error) { return conn.svr.indicate(21, b) }
 		conn.in[1] = ble.NewNotifier(send)
 
-		a.wh.ServeWrite(ble.NewRequest(conn, data, offset), rsp, conn.in[1])
+		a.wh.ServeWrite(ble.NewRequest(conn, data, offset), rsp, conn.in[20])
 	// case SignedWriteCommandCode:
 	// case ReadByGroupTypeRequestCode:
 	// case ReadMultipleRequestCode:
