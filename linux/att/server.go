@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"log"
 	"time"
 
 	"github.com/sensefinitycloud/go-ble"
@@ -153,6 +154,7 @@ func (s *Server) Loop() {
 		}
 	}()
 	for req := range seq {
+		log.Println("New Request")
 		if rsp := s.handleRequest(req.buf[:req.len]); rsp != nil {
 			if len(rsp) != 0 {
 				s.conn.Write(rsp)
@@ -175,7 +177,7 @@ func (s *Server) Loop() {
 
 func (s *Server) handleRequest(b []byte) []byte {
 	var resp []byte
-	logger.Debug("server", "req", fmt.Sprintf("% X", b))
+	log.Println("server", "req", fmt.Sprintf("% X", b))
 	switch reqType := b[0]; reqType {
 	case ExchangeMTURequestCode:
 		resp = s.handleExchangeMTURequest(b)
@@ -205,7 +207,7 @@ func (s *Server) handleRequest(b []byte) []byte {
 	default:
 		resp = newErrorResponse(reqType, 0x0000, ble.ErrReqNotSupp)
 	}
-	logger.Debug("server", "rsp", fmt.Sprintf("% X", resp))
+	log.Println("server", "rsp", fmt.Sprintf("% X", resp))
 	return resp
 }
 
@@ -615,6 +617,7 @@ func newErrorResponse(op byte, h uint16, s ble.ATTError) []byte {
 }
 
 func handleATT(a *attr, s *Server, req []byte, rsp ble.ResponseWriter) ble.ATTError {
+	log.Println("handleATT", req[0])
 	rsp.SetStatus(ble.ErrSuccess)
 	var offset int
 	var data []byte
