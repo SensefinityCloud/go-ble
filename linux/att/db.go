@@ -117,8 +117,10 @@ func genCharAttr(c *ble.Characteristic, h uint16) (uint16, []*attr) {
 	c.Handle = h
 	c.ValueHandle = vh
 
-	c.CCCD = newCCCD(c)
-	c.Descriptors = append(c.Descriptors, c.CCCD)
+	if c.NotifyHandler != nil || c.IndicateHandler != nil {
+		c.CCCD = newCCCD(c)
+		c.Descriptors = append(c.Descriptors, c.CCCD)
+	}
 
 	h += 2
 
@@ -194,7 +196,7 @@ func newCCCD(c *ble.Characteristic) *ble.Descriptor {
 		}
 		if !newNotify && oldNotify {
 			log.Println("CLOSING?")
-			// cn.nn[c.Handle].Close()
+			cn.nn[c.Handle].Close()
 		}
 
 		if newIndicate && !oldIndicate {
@@ -213,7 +215,7 @@ func newCCCD(c *ble.Characteristic) *ble.Descriptor {
 		}
 		if !newIndicate && oldIndicate {
 			log.Println("CLOSING?")
-			// cn.in[c.Handle].Close()
+			cn.in[c.Handle].Close()
 		}
 		cn.cccs[c.Handle] = ccc
 	}))

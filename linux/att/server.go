@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"io"
 	"log"
+	"time"
 
 	"github.com/sensefinitycloud/go-ble"
 )
@@ -108,7 +110,15 @@ func (s *Server) indicate(h uint16, data []byte) (int, error) {
 	if err != nil {
 		return n, err
 	}
-	return n, nil
+	select {
+	case _, ok := <-s.chConfirm:
+		if !ok {
+			return 0, io.ErrClosedPipe
+		}
+		return n, nil
+	case <-time.After(time.Second * 30):
+		return 0, ErrSeqProtoTimeout
+	}
 
 }
 
