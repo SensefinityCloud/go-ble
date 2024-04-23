@@ -72,6 +72,9 @@ func (d *Device) DidReceiveWriteRequests(pmgr cbgo.PeripheralManager, cbreqs []c
 		rsp := ble.NewResponseWriter(nil)
 		chr.WriteHandler.ServeWrite(req, rsp)
 
+		n := ble.NewNotifier(nil)
+		chr.NotifyHandler.ServeNotify(req, n)
+
 		pmgr.RespondToRequest(cbreq, cbgo.ATTError(rsp.Status()))
 	}
 
