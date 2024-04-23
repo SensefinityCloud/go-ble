@@ -664,12 +664,6 @@ func handleATT(a *attr, s *Server, req []byte, rsp ble.ResponseWriter) ble.ATTEr
 			return ble.ErrWriteNotPerm
 		}
 		data = WriteRequest(req).AttributeValue()
-
-		// TODO
-		conn.nn[20] = ble.NewNotifier(func(b []byte) (int, error) {
-			return conn.svr.notify(21, b)
-		})
-
 		a.wh.ServeWrite(ble.NewRequest(conn, data, offset), rsp, conn.svr.notify)
 
 	// case SignedWriteCommandCode:
