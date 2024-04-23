@@ -185,10 +185,10 @@ func newCCCD(c *ble.Characteristic) *ble.Descriptor {
 				return
 			}
 			send := func(b []byte) (int, error) {
-				fmt.Println("c.ValueHandle", c.ValueHandle)
+				fmt.Println("c.ValueHandle NOTIFY", c.ValueHandle)
 				return cn.svr.notify(c.ValueHandle, b)
 			}
-			fmt.Println("c.Handle", c.Handle)
+			fmt.Println("c.Handle NOTIFY", c.Handle)
 			cn.nn[c.Handle] = ble.NewNotifier(send)
 			go c.NotifyHandler.ServeNotify(req, cn.nn[c.Handle])
 		}
@@ -203,10 +203,10 @@ func newCCCD(c *ble.Characteristic) *ble.Descriptor {
 				return
 			}
 			send := func(b []byte) (int, error) {
-				fmt.Println("c.ValueHandle", c.ValueHandle)
+				fmt.Println("c.ValueHandle INDICATE", c.ValueHandle)
 				return cn.svr.indicate(c.ValueHandle, b)
 			}
-			fmt.Println("c.Handle", c.Handle)
+			fmt.Println("c.Handle INDICATE", c.Handle)
 			cn.in[c.Handle] = ble.NewNotifier(send)
 			go c.IndicateHandler.ServeNotify(req, cn.in[c.Handle])
 

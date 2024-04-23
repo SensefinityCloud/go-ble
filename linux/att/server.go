@@ -71,6 +71,7 @@ func NewServer(db *DB, l2c ble.Conn) (*Server, error) {
 
 // notify sends notification to remote central.
 func (s *Server) notify(h uint16, data []byte) (int, error) {
+	log.Println("notify", h, data)
 	// Acquire and reuse notifyBuffer. Release it after usage.
 	nBuf := <-s.chNotBuf
 	defer func() { s.chNotBuf <- nBuf }()
@@ -83,7 +84,8 @@ func (s *Server) notify(h uint16, data []byte) (int, error) {
 	if len(data) > buf.Cap() {
 		data = data[:buf.Cap()]
 	}
-	buf.Write(data)
+	_, err := buf.Write(data)
+	log.Println(err)
 	return s.conn.Write(rsp[:3+buf.Len()])
 }
 
