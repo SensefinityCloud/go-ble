@@ -21,15 +21,15 @@ func (f ReadHandlerFunc) ServeRead(req Request, rsp ResponseWriter) {
 
 // A WriteHandler handles GATT requests.
 type WriteHandler interface {
-	ServeWrite(req Request, rsp ResponseWriter)
+	ServeWrite(req Request, rsp ResponseWriter, n func(h uint16, data []byte) (int, error))
 }
 
 // WriteHandlerFunc is an adapter to allow the use of ordinary functions as Handlers.
-type WriteHandlerFunc func(req Request, rsp ResponseWriter)
+type WriteHandlerFunc func(req Request, rsp ResponseWriter, n func(h uint16, data []byte) (int, error))
 
 // ServeWrite returns f(r, maxlen, offset).
-func (f WriteHandlerFunc) ServeWrite(req Request, rsp ResponseWriter) {
-	f(req, rsp)
+func (f WriteHandlerFunc) ServeWrite(req Request, rsp ResponseWriter, n func(h uint16, data []byte) (int, error)) {
+	f(req, rsp, n)
 }
 
 // A NotifyHandler handles GATT requests.

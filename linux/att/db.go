@@ -115,6 +115,7 @@ func genCharAttr(c *ble.Characteristic, h uint16) (uint16, []*attr) {
 
 	c.Handle = h
 	c.ValueHandle = vh
+
 	if c.NotifyHandler != nil || c.IndicateHandler != nil {
 		c.CCCD = newCCCD(c)
 		c.Descriptors = append(c.Descriptors, c.CCCD)
@@ -169,7 +170,7 @@ func newCCCD(c *ble.Characteristic) *ble.Descriptor {
 		binary.Write(rsp, binary.LittleEndian, ccc)
 	}))
 
-	d.HandleWrite(ble.WriteHandlerFunc(func(req ble.Request, rsp ble.ResponseWriter) {
+	d.HandleWrite(ble.WriteHandlerFunc(func(req ble.Request, rsp ble.ResponseWriter, n func(h uint16, data []byte) (int, error)) {
 		cn := req.Conn().(*conn)
 		old := cn.cccs[c.Handle]
 		ccc := binary.LittleEndian.Uint16(req.Data())
@@ -200,6 +201,7 @@ func newCCCD(c *ble.Characteristic) *ble.Descriptor {
 			send := func(b []byte) (int, error) { return cn.svr.indicate(c.ValueHandle, b) }
 			cn.in[c.Handle] = ble.NewNotifier(send)
 			go c.IndicateHandler.ServeNotify(req, cn.in[c.Handle])
+
 		}
 		if !newIndicate && oldIndicate {
 			cn.in[c.Handle].Close()

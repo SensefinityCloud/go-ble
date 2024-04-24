@@ -72,6 +72,7 @@ func NewServer(db *DB, l2c ble.Conn) (*Server, error) {
 
 // notify sends notification to remote central.
 func (s *Server) notify(h uint16, data []byte) (int, error) {
+
 	// Acquire and reuse notifyBuffer. Release it after usage.
 	nBuf := <-s.chNotBuf
 	defer func() { s.chNotBuf <- nBuf }()
@@ -116,6 +117,7 @@ func (s *Server) indicate(h uint16, data []byte) (int, error) {
 	case <-time.After(time.Second * 30):
 		return 0, ErrSeqProtoTimeout
 	}
+
 }
 
 // Loop accepts incoming ATT request, and respond response.
@@ -619,6 +621,7 @@ func handleATT(a *attr, s *Server, req []byte, rsp ble.ResponseWriter) ble.ATTEr
 	var offset int
 	var data []byte
 	conn := s.conn
+
 	switch req[0] {
 	case ReadByTypeRequestCode:
 		fallthrough
@@ -652,7 +655,7 @@ func handleATT(a *attr, s *Server, req []byte, rsp ble.ResponseWriter) ble.ATTEr
 			return ble.ErrWriteNotPerm
 		}
 		data = s.prepareWriteRequestData.Bytes()
-		a.wh.ServeWrite(ble.NewRequest(conn, data, offset), rsp)
+		a.wh.ServeWrite(ble.NewRequest(conn, data, offset), rsp, nil)
 		s.prepareWriteRequestAttr = nil
 	case WriteRequestCode:
 		fallthrough
@@ -661,7 +664,8 @@ func handleATT(a *attr, s *Server, req []byte, rsp ble.ResponseWriter) ble.ATTEr
 			return ble.ErrWriteNotPerm
 		}
 		data = WriteRequest(req).AttributeValue()
-		a.wh.ServeWrite(ble.NewRequest(conn, data, offset), rsp)
+		a.wh.ServeWrite(ble.NewRequest(conn, data, offset), rsp, conn.svr.notify)
+
 	// case SignedWriteCommandCode:
 	// case ReadByGroupTypeRequestCode:
 	// case ReadMultipleRequestCode:

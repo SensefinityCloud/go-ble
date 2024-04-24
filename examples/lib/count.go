@@ -18,7 +18,7 @@ func NewCountChar() *ble.Characteristic {
 		n++
 	}))
 
-	c.HandleWrite(ble.WriteHandlerFunc(func(req ble.Request, rsp ble.ResponseWriter) {
+	c.HandleWrite(ble.WriteHandlerFunc(func(req ble.Request, rsp ble.ResponseWriter, n func(h uint16, data []byte) (int, error)) {
 		log.Printf("count: Wrote %s", string(req.Data()))
 	}))
 
