@@ -2,7 +2,10 @@
 
 [Fork of github.com/go-ble/ble](https://github.com/go-ble/ble)
 
-## Added Features
+1. Removed macos support
+2. Added multiple features needed to integrate nordic features
+
+## New Features
 
 ### General Advertisement function
 
@@ -67,13 +70,12 @@ eg:
 
 ```go
 tx.HandleNotify(ble.NotifyHandlerFunc(func(req ble.Request, n ble.Notifier) {
-		logger.Log(processServer, "TX Notify handler called", nil)
+		log.Println("TX Notify handler called")
 
 }))
 
 
 rx.HandleWrite(ble.WriteHandlerFunc(func(req ble.Request, rsp ble.ResponseWriter, n func(h uint16, data []byte) (int, error)) {
-
 		n(tx.ValueHandle, []byte("ok"))
 }))
 ```
