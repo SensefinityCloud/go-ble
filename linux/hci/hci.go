@@ -307,7 +307,6 @@ func (h *HCI) sktLoop() {
 	b := make([]byte, 4096)
 	defer close(h.done)
 	for {
-		log.Println("hci: sktLoop: read")
 		n, err := h.skt.Read(b)
 		if n == 0 || err != nil {
 			if err == io.EOF {
