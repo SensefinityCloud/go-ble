@@ -363,12 +363,15 @@ func (h *HCI) handleACL(b []byte) error {
 	log.Println("hci: handleACL")
 	handle := packet(b).handle()
 	h.muConns.Lock()
+
+	log.Println("len", len(h.conns))
 	c, ok := h.conns[handle]
 	log.Println("looking for handle:", handle)
 	// list all connections
 	for k, v := range h.conns {
 		log.Println("hci: handleACL: connection", k, v)
 	}
+
 	h.muConns.Unlock()
 	if !ok {
 		_ = logger.Warn("invalid connection handle on ACL packet", "handle", handle)
@@ -489,14 +492,19 @@ func (h *HCI) handleCommandStatus(b []byte) error {
 }
 
 func (h *HCI) handleLEConnectionComplete(b []byte) error {
+	log.Println("handleLEConnectionComplete")
 	e := evt.LEConnectionComplete(b)
 	if e.Role() == roleMaster && ErrCommand(e.Status()) == ErrConnID {
+		log.Println("handleLEConnectionComplete: ErrConnID")
 		// The connection was canceled successfully.
 		return nil
 	}
 	c := newConn(h, e)
 	h.muConns.Lock()
+
+	log.Println(e.ConnectionHandle())
 	h.conns[e.ConnectionHandle()] = c
+
 	h.muConns.Unlock()
 	if e.Role() == roleMaster {
 		if e.Status() == 0x00 {
@@ -529,6 +537,7 @@ func (h *HCI) handleLEConnectionComplete(b []byte) error {
 	if h.connectedHandler != nil {
 		h.connectedHandler(e)
 	}
+	log.Println("handleLEConnectionComplete: done")
 	return nil
 }
 
