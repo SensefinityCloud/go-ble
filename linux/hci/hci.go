@@ -133,14 +133,6 @@ func (h *HCI) Init() error {
 	h.subh[evt.LEConnectionCompleteSubCode] = h.handleLEConnectionComplete
 	h.subh[evt.LEConnectionUpdateCompleteSubCode] = h.handleLEConnectionUpdateComplete
 	h.subh[evt.LELongTermKeyRequestSubCode] = h.handleLELongTermKeyRequest
-	// evt.EncryptionChangeCode:                     todo),
-	// evt.ReadRemoteVersionInformationCompleteCode: todo),
-	// evt.HardwareErrorCode:                        todo),
-	// evt.DataBufferOverflowCode:                   todo),
-	// evt.EncryptionKeyRefreshCompleteCode:         todo),
-	// evt.AuthenticatedPayloadTimeoutExpiredCode:   todo),
-	// evt.LEReadRemoteUsedFeaturesCompleteSubCode:   todo),
-	// evt.LERemoteConnectionParameterRequestSubCode: todo),
 
 	skt, err := socket.NewSocket(h.id)
 	if err != nil {
@@ -303,7 +295,7 @@ func (h *HCI) send(c Command) ([]byte, error) {
 
 func (h *HCI) sktLoop() {
 	b := make([]byte, 4096)
-	defer close(h.done)
+
 	for {
 		n, err := h.skt.Read(b)
 		if n == 0 || err != nil {
@@ -312,6 +304,7 @@ func (h *HCI) sktLoop() {
 			} else {
 				h.err = fmt.Errorf("skt: %s", err)
 			}
+			close(h.done)
 			return
 		}
 		p := make([]byte, n)
@@ -321,12 +314,14 @@ func (h *HCI) sktLoop() {
 			// in this case, simply ignore them.
 			if strings.HasPrefix(err.Error(), "unsupported vendor packet:") {
 				_ = logger.Error("skt: %v", err)
+				close(h.done)
 			} else {
 				log.Printf("skt: %v", err)
 				break
 			}
 		}
 	}
+
 }
 
 func (h *HCI) close(err error) error {
