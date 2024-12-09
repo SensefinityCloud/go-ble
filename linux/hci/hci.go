@@ -381,11 +381,13 @@ func (h *HCI) handleACL(b []byte) error {
 }
 
 func (h *HCI) handleEvt(b []byte) error {
+	log.Println("hci: handleEvt")
 	code, plen := int(b[0]), int(b[1])
 	if plen != len(b[2:]) {
 		return fmt.Errorf("invalid event packet: % X", b)
 	}
 	if code == evt.CommandCompleteCode || code == evt.CommandStatusCode {
+		log.Println("hci: handleEvt: command complete or status")
 		if f := h.evth[code]; f != nil {
 			return f(b[2:])
 		}
@@ -393,6 +395,7 @@ func (h *HCI) handleEvt(b []byte) error {
 	if plen != len(b[2:]) {
 		h.err = fmt.Errorf("invalid event packet: % X", b)
 	}
+	log.Println("hci: handleEvt: code", code)
 	if f := h.evth[code]; f != nil {
 		h.err = f(b[2:])
 		return nil
@@ -404,6 +407,7 @@ func (h *HCI) handleEvt(b []byte) error {
 }
 
 func (h *HCI) handleLEMeta(b []byte) error {
+	log.Println("hci: handleLEMeta")
 	subcode := int(b[0])
 	if f := h.subh[subcode]; f != nil {
 		return f(b)
