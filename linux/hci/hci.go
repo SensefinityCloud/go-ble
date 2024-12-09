@@ -363,7 +363,7 @@ func (h *HCI) handleACL(b []byte) error {
 	h.muConns.Unlock()
 	if !ok {
 		_ = logger.Warn("invalid connection handle on ACL packet", "handle", handle)
-		return nil
+		panic("invalid connection handle on ACL packet")
 	}
 	c.chInPkt <- b
 	return nil
