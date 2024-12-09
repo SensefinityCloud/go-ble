@@ -349,7 +349,7 @@ func (c *Conn) SetTxMTU(mtu int) { c.txMTU = mtu }
 // Broadcasting in LE uses ADVB logical transport.
 type packet []byte
 
-func (a packet) handle() uint16 { return (uint16(a[0]) | (uint16(a[1]) << 8)) & 0x0FFF }
+func (a packet) handle() uint16 { return uint16(a[0]) | (uint16(a[1]&0x0f) << 8) }
 func (a packet) pbf() int       { return (int(a[1]) >> 4) & 0x3 }
 func (a packet) bcf() int       { return (int(a[1]) >> 6) & 0x3 }
 func (a packet) dlen() int      { return int(a[2]) | (int(a[3]) << 8) }

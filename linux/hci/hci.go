@@ -365,6 +365,11 @@ func (h *HCI) handleACL(b []byte) error {
 	handle := packet(b).handle()
 	h.muConns.Lock()
 	c, ok := h.conns[handle]
+	log.Println("looking for handle:", handle)
+	// list all connections
+	for k, v := range h.conns {
+		log.Println("hci: handleACL: connection", k, v)
+	}
 	h.muConns.Unlock()
 	if !ok {
 		_ = logger.Warn("invalid connection handle on ACL packet", "handle", handle)
