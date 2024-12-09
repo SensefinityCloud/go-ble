@@ -340,7 +340,6 @@ func (h *HCI) close(err error) error {
 }
 
 func (h *HCI) handlePkt(b []byte) error {
-	log.Println("hci: handlePkt")
 	// Strip the 1-byte HCI header and pass down the rest of the packet.
 	t, b := b[0], b[1:]
 	switch t {
