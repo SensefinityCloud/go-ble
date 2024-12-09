@@ -381,7 +381,6 @@ func (h *HCI) handleACL(b []byte) error {
 }
 
 func (h *HCI) handleEvt(b []byte) error {
-	log.Println("hci: handleEvt")
 	code, plen := int(b[0]), int(b[1])
 	if plen != len(b[2:]) {
 		return fmt.Errorf("invalid event packet: % X", b)
@@ -395,7 +394,6 @@ func (h *HCI) handleEvt(b []byte) error {
 	if plen != len(b[2:]) {
 		h.err = fmt.Errorf("invalid event packet: % X", b)
 	}
-	log.Println("hci: handleEvt: code", code)
 	if f := h.evth[code]; f != nil {
 		h.err = f(b[2:])
 		return nil
@@ -407,7 +405,6 @@ func (h *HCI) handleEvt(b []byte) error {
 }
 
 func (h *HCI) handleLEMeta(b []byte) error {
-	log.Println("hci: handleLEMeta")
 	subcode := int(b[0])
 	if f := h.subh[subcode]; f != nil {
 		return f(b)
@@ -549,6 +546,7 @@ func (h *HCI) handleLEConnectionUpdateComplete(b []byte) error {
 }
 
 func (h *HCI) handleDisconnectionComplete(b []byte) error {
+	log.Println("handleDisconnectionComplete")
 	e := evt.DisconnectionComplete(b)
 	h.muConns.Lock()
 	c, found := h.conns[e.ConnectionHandle()]
