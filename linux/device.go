@@ -23,11 +23,13 @@ func NewDeviceWithName(name string, opts ...ble.Option) (*Device, error) {
 }
 
 func NewDeviceWithNameAndHandler(name string, handler ble.NotifyHandler, opts ...ble.Option) (*Device, error) {
+	log.Println("NewDeviceWithNameAndHandler", name)
 	dev, err := hci.NewHCI(opts...)
 	if err != nil {
 		return nil, errors.Wrap(err, "can't create hci")
 	}
 	if err = dev.Init(); err != nil {
+		log.Println("dev.Close()")
 		dev.Close()
 		return nil, errors.Wrap(err, "can't init hci")
 	}

@@ -123,6 +123,7 @@ type HCI struct {
 
 // Init ...
 func (h *HCI) Init() error {
+	log.Println("hci: init")
 	h.evth[0x3E] = h.handleLEMeta
 	h.evth[evt.CommandCompleteCode] = h.handleCommandComplete
 	h.evth[evt.CommandStatusCode] = h.handleCommandStatus
@@ -302,9 +303,11 @@ func (h *HCI) send(c Command) ([]byte, error) {
 }
 
 func (h *HCI) sktLoop() {
+	log.Println("hci: sktLoop")
 	b := make([]byte, 4096)
 	defer close(h.done)
 	for {
+		log.Println("hci: sktLoop: read")
 		n, err := h.skt.Read(b)
 		if n == 0 || err != nil {
 			if err == io.EOF {
@@ -338,6 +341,7 @@ func (h *HCI) close(err error) error {
 }
 
 func (h *HCI) handlePkt(b []byte) error {
+	log.Println("hci: handlePkt")
 	// Strip the 1-byte HCI header and pass down the rest of the packet.
 	t, b := b[0], b[1:]
 	switch t {
@@ -357,6 +361,7 @@ func (h *HCI) handlePkt(b []byte) error {
 }
 
 func (h *HCI) handleACL(b []byte) error {
+	log.Println("hci: handleACL")
 	handle := packet(b).handle()
 	h.muConns.Lock()
 	c, ok := h.conns[handle]
