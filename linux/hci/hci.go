@@ -533,6 +533,11 @@ func (h *HCI) handleLEConnectionComplete(b []byte) error {
 			go h.Send(&cmd.LESetAdvertiseEnable{AdvertisingEnable: 0}, nil)
 		}
 		h.params.RUnlock()
+		go func() {
+			h.params.RLock()
+			time.AfterFunc(10*time.Second, func() { h.Send(&cmd.LESetAdvertiseEnable{AdvertisingEnable: 1}, nil) })
+			h.params.RUnlock()
+		}()
 	}
 	if h.connectedHandler != nil {
 		h.connectedHandler(e)
